@@ -1,5 +1,10 @@
 package clinet;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -26,9 +31,26 @@ public class Client {
                 }
             });
             thread.start();
+            JSONParser jsonParser = new JSONParser();
             while (true){
                 String response = is.readUTF();
-                System.out.println(response);
+                try {
+                    JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
+                    if (jsonObject.containsKey("users")){
+                        JSONArray jsonArray = (JSONArray) jsonObject.get("users");
+                        System.out.println("Список пользователей онлайн:");
+                        for (int i = 0; i < jsonArray.size(); i++) {
+                            String username = jsonArray.get(i).toString();
+                            System.out.println(username);
+                        }
+                    }else{
+                        String msg = jsonObject.get("message").toString();
+                        System.out.println(msg);
+                    }
+                } catch (ParseException e) {
+                    System.out.println("Неверный формат сообщения");
+                }
+
             }
         } catch (IOException e) {
             System.out.println("Потеряно соединение с сервером");
