@@ -26,7 +26,7 @@ public class Server {
                     @Override
                     public void run() {
                         try {
-                            sendMessage(user, "Введите команду /reg - для регистрации\n" +
+                            Message.sendMessage(user, "Введите команду /reg - для регистрации\n" +
                                     "/login - для авторизации"); // Отправляем jsonObject пользователю user
                             while (true){
                                 String command = Message.readMessage(user).getMsg(); // Ожидаем сообщение от пользователя
@@ -35,11 +35,11 @@ public class Server {
                                 }else if (command.equals("/login")){
                                     if(user.login()) break;
                                 }else{
-                                    sendMessage(user, "Неверная команда, попробуйте ещё раз");
+                                    Message.sendMessage(user, "Неверная команда, попробуйте ещё раз");
                                 }
                             }
 
-                            sendMessage(user, user.getName()+" добро пожаловать на сервер"); // Отправляем сообщение пользователю
+                            Message.sendMessage(user, user.getName()+" добро пожаловать на сервер"); // Отправляем сообщение пользователю
                             sendOnlineUsers(users); // Отправляем список онлайн пользователей
                             Message.sendHistoryChat(user);
                             while (true) {
@@ -51,9 +51,9 @@ public class Server {
                                 for (User user1 : users) { // Перебираем подключенных пользователей
                                     if (user.getId() == user1.getId()) continue; //user.equals(user1)
                                     else if(message.getTo() == 0) // Отправляем сообщение очередному пользователю списка
-                                        sendMessage(user1, user.getName()+": "+request);
+                                        Message.sendMessage(user1, user.getName()+": "+request);
                                     else if (user1.getId() == message.getTo()) // Отпраляем сообщение в приватный чат (ЛС)
-                                        sendMessage(user1, user.getName()+": "+request, true, user.getId());
+                                        Message.sendMessage(user1, user.getName()+": "+request, true, user.getId());
                                 }
                             }
                         } catch (IOException e) {
@@ -77,17 +77,6 @@ public class Server {
                  IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-    }
-    // user - кому отправляем, msg - сообщение которое отправляем
-    public static void sendMessage(User user, String msg, boolean privateMessage, int from) throws IOException {
-        JSONObject jsonObject = new JSONObject(); // Создаём объект JSON и будем передавать данные на клиента всегда в этом формате
-        jsonObject.put("message", msg); // Добавляем в объект JSON ключ "message" с некоторым сообщением
-        jsonObject.put("from", from); // Передаём ID отправителя
-        jsonObject.put("private", privateMessage);
-        user.getOut().writeUTF(jsonObject.toJSONString()); // Передаём сообщение в формате JSON клиенту
-    }
-    public static void sendMessage(User user, String msg) throws IOException {
-        sendMessage(user, msg, false, 0);
     }
 
     // В аргумент метода передаём список всех подключенных пользователей

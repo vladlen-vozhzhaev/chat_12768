@@ -56,31 +56,33 @@ public class Message {
         }
 
     }
+    // user - кому отправляем, msg - сообщение которое отправляем
+    public static void sendMessage(User user, String msg, boolean privateMessage, int from) throws IOException {
+        JSONObject jsonObject = new JSONObject(); // Создаём объект JSON и будем передавать данные на клиента всегда в этом формате
+        jsonObject.put("message", msg); // Добавляем в объект JSON ключ "message" с некоторым сообщением
+        jsonObject.put("from", from); // Передаём ID отправителя
+        jsonObject.put("private", privateMessage);
+        user.getOut().writeUTF(jsonObject.toJSONString()); // Передаём сообщение в формате JSON клиенту
+    }
+    public static void sendMessage(User user, String msg) throws IOException {
+        sendMessage(user, msg, false, 0);
+    }
     public void save(){
-        Connection connection = null; // Создаём объект подключения к БД
-        try {
-            connection = DriverManager.getConnection(DataBase.DB_URL, DataBase.DB_USER, DataBase.DB_PASS);
-            Statement statement = connection.createStatement(); // Создаём заявление
-            statement.executeUpdate("INSERT INTO messages (from_id, to_id, msg) VALUES ('"+this.from+"','"+this.to+"','"+this.msg+"')");
-            statement.close();
-        } catch (SQLException e) {
-            System.out.println("Невозможно сохранить сообщение в базе данных");
-        }
+        DataBase.update("INSERT INTO messages (from_id, to_id, msg) VALUES ('"+this.from+"','"+this.to+"','"+this.msg+"')");
     }
     public static void sendHistoryChat(User user) throws SQLException, IOException {
         sendHistoryChat(user, 0);
     }
     public static void sendHistoryChat(User user, int toId) throws SQLException, IOException {
-        Connection connection = DriverManager.getConnection(DataBase.DB_URL, DataBase.DB_USER, DataBase.DB_PASS);
-        Statement statement = connection.createStatement();
-        ResultSet resultSet;
-        if(toId == 0){
-            resultSet = statement.executeQuery("select * from messages where to_id = 0");
-        }else{
-            resultSet = statement.executeQuery("select * from messages where from_id in("+toId+","+user.getId()+") and to_id in ("+toId+","+user.getId()+")");
-        }
-        while (resultSet.next()){
-            Server.sendMessage(user, resultSet.getString("msg"));
-        }
+        boolean privateMessage = toId==0;
+        String sql = toId == 0?"select from_id, name, msg from messages, users where to_id = 0 AND from_id = users.id":"SELECT from_id, name, msg FROM messages, users WHERE from_id in("+toId+","+user.getId()+") AND to_id in ("+toId+","+user.getId()+") AND users.id=from_id";
+        ResultSet resultSet = DataBase.query(sql);
+        while (resultSet.next())
+            sendMessage(
+                    user,
+                    resultSet.getString("name")+": "+resultSet.getString("msg"),
+                    !privateMessage,
+                    resultSet.getInt("from_id")
+            );
     }
 }
