@@ -45,15 +45,15 @@ public class User {
     }
     public boolean reg() throws Exception {
         // this - это user у которого вызвали метод reg();
-        Message.sendMessage(this, "Введите имя:"); // Отправляем сообщение пользователю
+        Message.sendMessage(this, "Введите имя:",1); // Отправляем сообщение пользователю
         String name = Message.readMessage(this).getMsg(); // Читаем ответ пользователя
-        Message.sendMessage(this, "Введите логин:"); // Отправляем сообщение пользователю
+        Message.sendMessage(this, "Введите логин:",1); // Отправляем сообщение пользователю
         String login = Message.readMessage(this).getMsg(); // Читаем ответ пользователя
-        Message.sendMessage(this, "Введите пароль:"); // Отправляем сообщение пользователю
+        Message.sendMessage(this, "Введите пароль:",1); // Отправляем сообщение пользователю
         String pass = Message.readMessage(this).getMsg(); // Читаем ответ пользователя
         ResultSet resultSet = DataBase.query("SELECT * FROM users WHERE login = '"+login+"'"); // Отправка запроса к БД, ответ сохраним в ResultSet
         if (resultSet.next()){ // Если next() вернёт true, значит пользователь уже есть
-            Message.sendMessage(this, "Такой пользователь уже зарегистрирован"); // Отправляем сообщение пользователю
+            Message.sendMessage(this, "Такой пользователь уже зарегистрирован",1); // Отправляем сообщение пользователю
             return false;
         }else{ // В другом случае (когда такого пользователя ещё нет)
             DataBase.update("INSERT INTO users (name, login, pass) VALUES ('"+name+"', '"+login+"', '"+pass+"')");
@@ -66,9 +66,9 @@ public class User {
     }
     public boolean login() throws Exception{
         // this - это user у которого вызвали метод login();
-        Message.sendMessage(this, "Введите логин:"); // Отправляем сообщение пользователю
+        Message.sendMessage(this, "Введите логин:",1); // Отправляем сообщение пользователю
         String login = Message.readMessage(this).getMsg();// Читаем ответ пользователя
-        Message.sendMessage(this, "Введите пароль:"); // Отправляем сообщение пользователю
+        Message.sendMessage(this, "Введите пароль:",1); // Отправляем сообщение пользователю
         String pass = Message.readMessage(this).getMsg();// Читаем ответ пользователя
         // Создаём объект подключения к базе данных
         ResultSet reresultSet = DataBase.query("SELECT * FROM users WHERE login = '"+login+"' AND pass='"+pass+"'"); // Выбираем пользователя по логин и паролю из БД
@@ -77,7 +77,7 @@ public class User {
             this.setId(reresultSet.getInt("id"));// Добавляем ID для user
             return true; // Успешная авторизация
         }else{
-            Message.sendMessage(this, "Неверный логин или пароль"); // Отправляем сообщение пользователю
+            Message.sendMessage(this, "Неверный логин или пароль",1); // Отправляем сообщение пользователю
             return false; // Авторизация не удалась
         }
     }

@@ -27,7 +27,7 @@ public class Server {
                     public void run() {
                         try {
                             Message.sendMessage(user, "Введите команду /reg - для регистрации\n" +
-                                    "/login - для авторизации"); // Отправляем jsonObject пользователю user
+                                    "/login - для авторизации",1); // Отправляем jsonObject пользователю user
                             while (true){
                                 String command = Message.readMessage(user).getMsg(); // Ожидаем сообщение от пользователя
                                 if(command.equals("/reg")){
@@ -35,11 +35,11 @@ public class Server {
                                 }else if (command.equals("/login")){
                                     if(user.login()) break;
                                 }else{
-                                    Message.sendMessage(user, "Неверная команда, попробуйте ещё раз");
+                                    Message.sendMessage(user, "Неверная команда, попробуйте ещё раз",1);
                                 }
                             }
 
-                            Message.sendMessage(user, user.getName()+" добро пожаловать на сервер"); // Отправляем сообщение пользователю
+                            Message.sendMessage(user, user.getName()+" добро пожаловать на сервер",1); // Отправляем сообщение пользователю
                             sendOnlineUsers(users); // Отправляем список онлайн пользователей
                             Message.sendHistoryChat(user);
                             while (true) {
@@ -51,9 +51,9 @@ public class Server {
                                 for (User user1 : users) { // Перебираем подключенных пользователей
                                     if (user.getId() == user1.getId()) continue; //user.equals(user1)
                                     else if(message.getTo() == 0) // Отправляем сообщение очередному пользователю списка
-                                        Message.sendMessage(user1, user.getName()+": "+request);
+                                        Message.sendMessage(user1, user.getName()+": "+request,1);
                                     else if (user1.getId() == message.getTo()) // Отпраляем сообщение в приватный чат (ЛС)
-                                        Message.sendMessage(user1, user.getName()+": "+request, true, user.getId());
+                                        Message.sendMessage(user1, user.getName()+": "+request, true, user.getId(),1);
                                 }
                             }
                         } catch (IOException e) {
